@@ -1,2 +1,2 @@
 # CS687
-Information Theory (Satyadev Nandakumar)
+Algorithmic Information Theory (Prof. Satyadev Nandakumar)
