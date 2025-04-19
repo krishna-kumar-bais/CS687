@@ -1,0 +1,151 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{fullpage}
+%\usepackage{enumerate}
+\usepackage{graphicx}
+\graphicspath{ {./} }
+\usepackage{hyperref}
+\usepackage{multirow}
+%\usepackage[]{algorithm2e}
+\usepackage{minted}
+\usepackage{tikz}
+
+\usetikzlibrary{arrows,automata,positioning}
+
+\newcommand{\abs}[1]{{\lvert #1\rvert}}
+\newenvironment{solution}{\textbf{Solution:}}{\hfill$\square$}
+%\newcommand{\pr}{\textsc{P}}
+
+\begin{document}
+
+\begin{flushright}
+\begin{tabular*}{\textwidth}
+{@{\extracolsep{\fill}}l r}
+% \hline
+\multirow{3}{0.7\textwidth}{{\Huge CS687A: Midsem}} & \\ 
+& \\ 
+& \large{Kumar Arpit: 200532}\\
+% & Kumar Arpit: 200532\\
+\hline
+\end{tabular*}
+\end{flushright}
+
+\begin{enumerate}
+
+    \item  Consider a string x with $K(x) \geq \abs{x} - c$. Let $y$ be an arbitrary string. Show that $\abs{x} + K(y\mid x) \leq K(x, y) + O(1)$. (In words: if you condition on an incompressible string, the symmetry of information inequality is much simpler.) 
+
+    \begin{solution}
+
+        From the Symmetry of Information (Theorem 3.4.2), we know that 
+        \[K(y\mid x,K(x)) \leq K(x,y) - K(x) + c_1\]
+        Now, since we are given that
+        \[K(x)\geq \abs{x}-c\]
+        We have,
+        \[K(y\mid x,K(x)) +c_2 = K(y\mid x)\]
+        This is because, since $x$ is incompressible, we know of a short program (upto a constant additive factor) which outputs $x$, i.e. one which hardcodes $x$ in itself. Thus, we can relax the conditioning of $K(x)$ 
+        
+        Now, substituting the above two, we have,
+        \[K(y\mid x) - c_2 \leq K(x,y) - \abs{x} - c + c_1\]
+        Rearranging which we get,
+        \[K(y\mid x) +\abs{x} \leq K(x,y) + O(1) \quad\quad;\quad\quad O(1) = c_1 + c_2 - c \]
+        which is our desired inequality,
+        
+    \end{solution}
+    \newpage
+
+    \item  A real number $r$ is called computable if for there is a program $M$ such that for every $n$, $M(n)$ outputs a rational number such that $\abs{r - M(n)} \leq 2^{-n}$. Show that a real number is computable if and only if it is both lower and upper semicomputable.
+
+    \begin{solution}
+        We will prove the two directions of the equivalence separately:
+        
+        $\Rightarrow$ direction:
+        
+        Let us assume that $r$ is computable. Let $M$ be the program that computes $r$, such that for every $n$, $M(n)$ outputs a rational number such that
+        
+        \[\abs{r - M(n)} \leq 2^{-n}\]
+        
+        We will construct two programs $L$ and $U$ that will compute the lower and upper approximations of $r$, respectively.
+        
+        Program $L$: For each $n$, run $M(2n)$ and output the result. Since $M(2n)$ outputs a rational number and $\abs{r - M(2n)} \leq 2^{-2n}$, we have that $L(n)$ is a rational number and $L(n) \leq r + 2^{-2n}$. Therefore, $L$ computes the lower semicomputable function $L(n) = \lim_{k \rightarrow \infty} M(2k)$.
+        
+        Program $U$: For each $n$, run $M(2n+1)$ and output the result. Since $M(2n+1)$ outputs a rational number and $\abs{r - M(2n+1)} \leq 2^{-2n-1}$, we have that $U(n)$ is a rational number and $U(n) \geq r - 2^{-2n-1}$. Therefore, $U$ computes the upper semicomputable function $U(n) = \lim_{k \rightarrow \infty} M(2k+1)$.
+        
+        Thus, $r$ is both lower and upper semicomputable.
+        
+        $\Leftarrow$ direction:
+        
+        Now for the reverse direction, assume that $r$ is both lower and upper semicomputable. We construct a program $M$ that computes $r$.
+        
+        Program $M$: For each $n$, compute the lower approximation $L(n)$ and the upper approximation $U(n)$ of $r$ up to $n$ bits using the programs that compute the lower and upper semicomputable functions, respectively. Then output the midpoint of the interval $[L(n), U(n)]$, i.e., $M(n) = \frac{L(n)+U(n)}{2}$.
+        
+        Since $L(n) \leq r \leq U(n)$, we have that $r - M(n) \leq U(n) - M(n) \leq \frac{U(n)-L(n)}{2} \leq 2^{-n}$. Therefore, $\abs{r - M(n)} \leq 2^{-n}$, which implies that $r$ is computable.
+        
+        Thus, we prove both the directions which implies $r$ is computable if and only if it is both lower and upper semicomputable.
+        
+    \end{solution}
+    \newpage
+
+    \item  Suppose there is an (oracle) machine $N$ which gives approximations of
+    \[\omega=\sum_{i\in \mathbb{N}, M_i(i)\downarrow}\frac{1}{2_i}\]
+    -i.e. suppose that $\omega$ is computable as described in the previous question. Then show that, using $N$, a machine $P$ can decide, for every $i \in \mathbb{N}$, whether $M_i(i)$ halts.
+
+    \begin{solution}
+
+    Ro show the above, we will construct a machine $P$ that uses the oracle $N$ to decide whether $M_i(i)$ halts for any given $i \in \mathbb{N}$.
+    
+    The machine $P$ works as follows:
+    
+    Given an input $i$, it calculates the $i^{th}$ approximation of $\omega$ using the oracle $N$. Denote this approximation by $q_i$.
+    
+    For each positive integer $n$, the machine simulates $M_i(i)$ for $n$ steps. If $M_i(i)$ halts within $n$ steps, we output "halt". Else we continue to the next step.
+    
+    If $M_i(i)$ has not halted within $n$ steps for any $n$, output "diverge".
+    
+    If $M_i(i)$ has not halted within $2^{q_i}$ steps, output "diverge". Otherwise, output "halt".
+    
+    Note that since $\omega$ is computable using the oracle $N$, step 1 is well-defined and can be computed by machine $P$. By the definition of $N$, we have that $q_i$ is an increasing sequence that converges to $\omega$, so $q_i \leq q_{i+1}$ and $q_i \rightarrow \omega$ as $i \rightarrow \infty$.
+    
+    Now, suppose that $M_i(i)$ halts. Then there exists some positive integer $n$ such that $M_i(i)$ halts within $n$ steps. Since $M_i(i)$ halts, it does not diverge, so the output of machine $P$ must be "halt". Furthermore, since $M_i(i)$ halts within $n$ steps, we have that $M_i(i)$ halts within $2^{q_i}$ steps for all $i \geq n$, so the output of machine $P$ is also "halt" for all $i \geq n$.
+    
+    On the other hand, suppose that $M_i(i)$ does not halt. Then $M_i(i)$ either diverges or takes more than $n$ steps to halt for all positive integers $n$. In the former case, the output of machine $P$ must be "diverge". In the latter case, we have that $M_i(i)$ takes more than $2^{q_i}$ steps to halt for all $i$, so the output of machine $P$ is also "diverge" for all $i$.
+    
+    Therefore, machine $P$ correctly decides whether $M_i(i)$ halts for any given $i \in \mathbb{N}$, using the oracle $N$.
+        
+    \end{solution}
+    \newpage
+
+    \item  Show that for every pair of strings $x$ and $y$, we have $C(x, y) \leq C(x) + C(y) + \log C(x) + \log C(y) + O(1).$
+
+    \begin{solution}
+        Suppose program $P$ computes $x$ which has complexity $C(x)$. Similarly, say Program $Q$ computes $y$ with complexity $C(y)$.
+
+        Now consider a program $R$ which on input $xy$ simulates $x$ on $P$ and $y$ on $Q$. However, such a program needs to know where it has to divide its input i.e. where $x$ ends.
+
+        One sufficiently good way to achieve this is by using prefix codes i.e. by using the input $\overline{l(x)}xy$ or $\overline{l(y)}xy$, depending whether $x\leq y$ or vice versa (which again can be encoded by 1 bit).
+
+        Note that $\overline{l(x)}=1^{l(l(x))}0l(x)$ and so $l(\overline{l(x)})=2l(l(x))+1=2\log C(x)+1$
+
+        Here is how $R$ works:
+
+        \begin{enumerate}
+            \item Depending on 1st bit, $R$ finds what is the first part of input, $x$ or $y$, call it $z$.
+            \item $R$ calculates the length of first part, $l(z)$ from the encoding of its length $\overline{l(z)}$.
+            \item $R$ runs $P$ on the next $l(z)$ bits of input and outputs.
+            \item $R$ runs $Q$ on the remaining bits of input and outputs.
+        \end{enumerate}
+
+        So, we have length of $R$ as 
+
+        \[\begin{split}
+            C(x,y) & \leq \abs{R} \\
+                   & \leq 1+C(x)+C(y)+2\log(min(C(x),C(y))+1 \\
+                   & \leq C(x)+C(y)+\log(C(x))+\log(C(y))+O(1)
+        \end{split}\]
+        
+    \end{solution}
+    
+\end{enumerate}
+
+\end{document}

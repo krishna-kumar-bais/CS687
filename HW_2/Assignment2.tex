@@ -1,0 +1,166 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{fullpage}
+%\usepackage{enumerate}
+\usepackage{graphicx}
+\graphicspath{ {./} }
+\usepackage{hyperref}
+\usepackage{multirow}
+%\usepackage[]{algorithm2e}
+\usepackage{minted}
+\usepackage{tikz}
+
+\usetikzlibrary{arrows,automata,positioning}
+
+\newcommand{\abs}[1]{{\lvert #1\rvert}}
+\newenvironment{solution}{\textbf{Solution:}}{\hfill$\square$}
+%\newcommand{\pr}{\textsc{P}}
+
+\begin{document}
+
+\begin{flushright}
+\begin{tabular*}{\textwidth}
+{@{\extracolsep{\fill}}l r}
+% \hline
+\multirow{3}{0.7\textwidth}{{\Huge CS687A: Assignment 2}} & \\ 
+& \\ 
+& \large{Kumar Arpit: 200532}\\
+% & Kumar Arpit: 200532\\
+\hline
+\end{tabular*}
+\end{flushright}
+
+\begin{enumerate}
+
+    \item A probability measure $\mu$ on $\Sigma^*$ is defined by the following rules.
+    \begin{enumerate}
+        \item $\mu(\lambda)=1$ and
+        \item For every string $w$, $\mu(w) = \mu(w0) + \mu(w1)$.
+    \end{enumerate}
+    (The way to understand this is that $\mu(w)$ is the probability of all infinite sequences with $w$ as a prefix. Then the second rule is finite additivity over disjoint unions.)
+    
+    New: A $\mu$ martingale is a function $d:\Sigma^*\rightarrow[0,\infty)$ such that $d(\lambda)=1$, and for every string $w$, we have
+    \[d(w)\mu(w) = d(w0)\mu(w0) + d(w1)\mu(w1)\]
+    If $\mu$ and $\nu$ are probabilities on $\Sigma^*$, such that $\mu(w) \not= 0$ for any string $w$, then show that $\mu/\nu$ is a $\nu$-martingale.
+
+    \begin{solution}
+
+    To show that $\mu/\nu$ is a $\nu$-martingale, we need to show that it satisfies the two conditions for a $\nu$-martingale, i.e., 
+    \begin{align*}
+        d(\lambda) &=1 \text{ and} \\
+        d(w)\nu(w) &= d(w0)\nu(w0) + d(w1)\nu(w1)
+    \end{align*}
+    
+    for every string $w$.
+    
+    First, we have $d(\lambda)=\mu(\lambda)/\nu(\lambda)=1/1=1$, since $\mu(\lambda)=1$ and $\nu(\lambda)=1$ by definition (as they are probability measures).
+    
+    Next, let $w$ be any string. Then, we have
+    \begin{align*}
+        d(w)\nu(w)  &= \frac{\mu(w)}{\nu(w)}\cdot \nu(w) \\
+                    &= \mu(w) &\text{ (Since }\nu(w)\neq 0)\\
+                    &= \mu(w0) + \mu(w1) \\
+                    &= \frac{\mu(w0)}{\nu(w0)}\nu(w0) + \frac{\mu(w1)}{\nu(w1)}\nu(w1) &\text{ (Again since }\nu(w0) \text{ and } \nu(w1)\neq 0)\\
+                    &= d(w0)\nu(w0) + d(w1)\nu(w1),
+    \end{align*}
+    
+    \end{solution}
+    \newpage
+
+    \item Prove or disprove: if $d : \Sigma^* \rightarrow [0, \infty)$ is a $\mu$-martingale which does not assign 0 to any string, then $d$ is the ratio of two probabilities on strings.
+    
+    (New: $d$ is a $\mu$-martingale.)
+
+    \begin{solution}
+
+    The statement is true.
+
+    Given $d$ is a positive $\mu$-martingale. So we have
+    \[d(w)\mu(w) = d(w0)\mu(w0) + d(w1)\mu(w1)\]
+    s.t. $d(w)\not=0\quad\forall w$, $d(\lambda)=1$, and $\mu$ is a probablity distribution on $\Sigma^*$.
+
+    Now we have,
+    \[d(w)=\frac{d(w0)\mu(w0) + d(w1)\mu(w1)}{\mu(w)}\]
+    We know that $\mu$ is a probablity measure.
+    
+    Now let us call the numerator $\nu(w)$. So we have,
+    \[\nu(w)=d(w0)\mu(w0) + d(w1)\mu(w1)\]
+    Now consider
+    \begin{align*}
+        \nu(w0)+\nu(w1) &= (d(w00)\mu(w00) + d(w10)\mu(w10))+(d(w01)\mu(w01) + d(w11)\mu(w11))\\
+                        &= (d(w0)\mu(w0))+(d(w1)\mu(w1)) \\
+                        &= \nu(w) & \text{(By definition)}
+    \end{align*}
+    Also,
+        \[\nu(\lambda)    = d(0)\mu(0)+d(1)\mu(1)=1   \quad\text{(As }d(\lambda)=\mu(\lambda)=1)\]
+    Thus, $\nu$ is also a probability measure.
+
+    Hence, $d=\nu/\mu$ and is thus a ratio of two probabilities on binary strings.
+    
+    \end{solution}
+    \newpage
+
+    \item Suppose you are given an arbitrary binary sequence where it is guaranteed that there is at least one 1 in every block of 50,000 positions starting from the first position. Define a martingale that succeeds on such a sequence. Show that the martingale succeeds.
+
+    \begin{solution}
+
+    Let $X_i$ be the outcome of the $i$-th coin flip, where $X_i=1$ if the $i$-th position in the sequence is a 1 and $X_i=0$ otherwise. We can define the following martingale:
+
+\begin{equation*}
+M_n=\prod_{i=1}^n (1+(X_i-1)\cdot \frac{1}{50000})
+\end{equation*}
+
+Note that $M_n$ is a non-negative martingale since for any $i\leq n$:
+
+\begin{equation*}
+\mathbb{E}[M_n|X_1,\ldots,X_i]=M_i\cdot \mathbb{E}[(1+(X_{i+1}-1)\cdot \frac{1}{50000})|X_1,\ldots,X_i] = M_i
+\end{equation*}
+
+since $\mathbb{E}[(1+(X_{i+1}-1)\cdot \frac{1}{50000})|X_1,\ldots,X_i]=1$ if $X_{i+1}=1$ (since there is already a 1 in the block of 50,000 positions) and $\mathbb{E}[(1+(X_{i+1}-1)\cdot \frac{1}{50000})|X_1,\ldots,X_i]=1-\frac{1}{50000}$ if $X_{i+1}=0$.
+
+Note that $M_1=1$ and that $M_n$ converges almost surely to a non-negative limit $M_\infty$ by the martingale convergence theorem.
+
+We want to show that $M_\infty>0$ almost surely. To see why this is true, note that since there is at least one 1 in every block of 50,000 positions starting from the first position, there exists a sequence of indices $0=n_0<n_1<n_2<\ldots$ such that $X_{n_k+1}=1$ for all $k$ and $n_{k+1}-n_k\leq 49999$ for all $k$. Then we have:
+
+\begin{equation*}
+M_{n_k}=1\cdot \left(1+\frac{1}{50000}\right)\cdot \left(1+\frac{1}{50000}\right)\cdots \left(1+\frac{1}{50000}\right)
+\end{equation*}
+
+where there are at most 49,999 factors in the product. Therefore:
+
+\begin{equation*}
+M_{n_k}\geq \left(1+\frac{1}{50000}\right)^{49999}>2
+\end{equation*}
+
+for all $k$. Since $M_n$ converges almost surely to $M_\infty$, it follows that $M_\infty\geq 2>0$ almost surely. Therefore, the martingale succeeds almost surely.
+    
+    \end{solution}
+    \newpage
+
+    \item Suppose $d : \Sigma^* \rightarrow [0, \infty)$ is a lower semicomputable martingale. Let $X$ be a sequence on which $d$ succeeds. Then show that $X$ has infinitely many prefixes with low self-delimiting Kolmogorov complexity. 
+
+    \begin{solution}
+
+    To prove that $X$ has infinitely many prefixes with low self-delimiting Kolmogorov complexity, we will first construct a prefix $p$ of $X$ with low self-delimiting Kolmogorov complexity and then show that we can always extend $p$ to a longer prefix with low self-delimiting Kolmogorov complexity.
+    
+    Let $d : \Sigma^* \rightarrow [0, \infty)$ be a lower semicomputable martingale that succeeds on $X$. This means that $d(X) = \infty$ and for any $n$, there exists a constant $c_n$ such that $d(x) \geq c_n$ for all prefixes $x$ of $X$ of length at least $n$.
+    
+    Let $p$ be the shortest prefix of $X$ such that $d(p) \geq 2^{-|p|}$. Such a prefix must exist because $d$ is lower semicomputable and $d(X) = \infty$, so $d(x) \rightarrow \infty$ as $|x| \rightarrow \infty$.
+    
+    Now, we claim that $p$ has low self-delimiting Kolmogorov complexity. To see this, we note that the length of the shortest program $P$ that generates $p$ is at most $|p| + \log(|p|) + c$ for some constant $c$. This follows from the fact that $P$ can simply output the length of $p$ and then output $p$ itself. Thus, the self-delimiting Kolmogorov complexity of $p$ is at most $|p| + \log(|p|) + c$.
+    
+    Now, we show that we can always extend $p$ to a longer prefix $p'$ with low self-delimiting Kolmogorov complexity. Let $n = |p|$. By the definition of $p$, we know that $d(x) < 2^{-n}$ for all prefixes $x$ of $X$ of length less than $n$. This means that $d$ decreases exponentially quickly as we move to shorter prefixes of $X$.
+    
+    Consider the set of prefixes $S = {x \in \Sigma^* : |x| = n}$. We know that $d(x) \geq 2^{-n}$ for some $x \in S$ (namely, $p$). Moreover, since $d$ is lower semicomputable, we can effectively find the maximum value of $d$ over all prefixes in $S$. Let $x'$ be a prefix in $S$ such that $d(x')$ is maximum. Then, we claim that $x'$ has low self-delimiting Kolmogorov complexity.
+    
+    To see this, note that the length of the shortest program $X$ that generates $x'$ is at most $n + \log(n) + c$ for some constant $c$. This follows from the fact that $X$ can simply output the length of $x'$ and then output $x'$ itself. Thus, the self-delimiting Kolmogorov complexity of $x'$ is at most $n + \log(n) + c$.\
+    
+    Now, let $p' = p + x'$. We know that $d(p') \geq d(x^) \geq 2^{-n}$, so $p'$ has low self-delimiting Kolmogorov complexity by the same argument as before.
+    
+    \end{solution}
+    
+\end{enumerate}
+
+\end{document}
