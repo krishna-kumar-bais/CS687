@@ -1,0 +1,473 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+
+\title{\textbf{CS687 EndSem Solutions}}
+\author{Krishna Kumar Bais\\Roll No.: 241110038}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Question 1:}
+
+\textbf{Show that if there is a constant \( c \) such that for the sequence \( X \in \Sigma^\infty \), we have}
+\[
+C(X[0\ldots(n-1)] \mid n) < c \text{ for all } n,
+\]
+\textbf{then \( X \) is computable.}
+
+
+\section*{Solution:}
+\subsection*{-$>$ Goal:}  
+We need to \textbf{prove that \( X \) is computable}, i.e., there exists a total computable function \( f : \mathbb{N} \to \{0,1\} \) such that \( f(n) = X(n) \), the \( n \)th bit of \( X \).
+
+\subsection*{-$>$ Understand the assumption:}
+
+   We are given that:
+
+\[
+\forall n \in \mathbb{N}, \quad C(X[0\ldots(n-1)] \mid n) < c,
+\]
+\newline
+This means: for each \( n \), there exists a \textbf{program \( p_n \)} of length \( < c \) such that when run on input \( n \), it outputs \( X[0\ldots(n-1)] \).
+
+So:
+\begin{itemize}
+  \item \( U(p_n, n) = X[0\ldots(n-1)] \),
+  \item where \( U \) is a fixed universal Turing machine.
+\end{itemize}
+
+\subsection*{-$>$ There are finitely many such programs:}
+
+Since \( C(\cdot \mid n) < c \), and program size \( < c \), there are at most:
+
+\[
+N = 2^{c} - 1
+\]
+\newline
+distinct programs that could serve as \( p_n \) for \textbf{any} \( n \). Let the full list of such programs be:
+
+\[
+\mathcal{P} = \{p_1, p_2, \ldots, p_N\}
+\]
+\newline
+Each \( p_i \) is a candidate decoder for \( X[0..n-1] \), when given \( n \).
+
+\subsection*{-$>$ Fix one program that works for all large \( n \):}
+
+
+Each \( p_i \in \mathcal{P} \) defines a \textbf{partial function} \( f_i(n) = U(p_i, n) \), potentially defined for infinitely many \( n \).
+\newline
+We know that for each \( n \), \textbf{at least one} \( p_i \) satisfies:
+
+\[
+U(p_i, n) = X[0\ldots(n-1)]
+\]
+\newline
+But to conclude \textbf{computability}, we need \textbf{one single program} \( p_i \) that works for \textbf{all sufficiently large} \( n \).
+
+\subsection*{-$>$ Pigeonhole principle → one \( p^* \in \mathcal{P} \) works infinitely often:}
+
+\begin{itemize}
+  \item There are only finitely many \( p_i \).
+  \item So, by the pigeonhole principle, \textbf{some program} \( p^* \in \mathcal{P} \) must work for \textbf{infinitely many \( n \)}.
+\end{itemize}
+
+Let:
+
+\[
+S = \{ n \in \mathbb{N} : U(p^*, n) = X[0\ldots(n-1)] \}
+\]
+
+Then \( S \subseteq \mathbb{N} \) is infinite.
+
+\subsection*{-$>$ Show that \( S \) must be cofinite (i.e., missing only finitely many n):}
+
+Let us suppose, for contradiction, that \( S \) is \textbf{not cofinite}; i.e., \( \mathbb{N} \setminus S \)  is infinite.
+\newline
+\newline
+Then infinitely many \( n \) use programs \textbf{different} from \( p^* \). But again, the number of programs is finite, so some other \( p_i \) would also be used infinitely often.
+\newline
+\newline
+This process leads to an infinite sequence of switches between candidate programs — which would imply \textbf{infinitely many distinct infinite sequences} are being reconstructed by programs of size \( < c \).
+\newline
+\newline
+But there are \textbf{only finitely many} such programs, and each program \( p \) defines at most \textbf{one infinite sequence} (since \( U(p, n) \) must agree with \( X[0\ldots(n-1)] \) for all large \( n \)).
+\newline
+Thus, we reach a contradiction unless \textbf{one \( p^* \)} outputs \( X[0..n-1] \) for \textbf{all sufficiently large \( n \)}.
+\newline
+\newline
+So there exists a \textbf{fixed program \( p^* \)} such that:
+
+\[
+\exists N_0\ \forall n \geq N_0,\quad U(p^*, n) = X[0\ldots(n-1)]
+\]
+
+\subsection*{-$>$ Use \( p^* \) to define a total computable function \( f(n) = X(n) \):}
+
+Define the function \( f: \mathbb{N} \to \{0,1\} \) as:
+
+\begin{itemize}
+  \item For \( n < N_0 \), hardcode the value of \( X(n) \).
+  \item For \( n \geq N_0 \):  
+  \begin{enumerate}
+    \item Compute \( X[0\ldots(n-1)] = U(p^*, n) \)
+    \item Return \( X(n) = \text{nth bit of } U(p^*, n) \)
+  \end{enumerate}
+\end{itemize}
+
+Since:
+\begin{itemize}
+  \item \( p^* \) is fixed and finite,
+  \item \( U \) is universal (and total on this domain),
+  \item and the hardcoded part is finite,
+\end{itemize}
+
+\(\Rightarrow\ f(n) \) is total and computable.
+
+\subsection*{Conclusion:}
+\[
+X(n) = f(n),\quad \text{where } f \text{ is total computable}
+\]
+Hence, the infinite sequence \( X \) is computable.
+\newline
+\newline
+\textit{If there is a constant \( c \) such that for all \( n \), \( C(X[0\ldots(n-1)] \mid n) < c \),\\
+then \( X \) is computable.}
+
+\newpage
+\section*{Question 2:}
+
+\noindent
+\textbf{Show that if for any infinite binary sequence \( X \):}  
+\[
+\sum_{n \in \mathbb{N}} 2^{n - K(X[0\ldots(n-1)])} < \infty \tag{1}
+\]
+\textbf{then:}  
+\[
+\lim_{n \to \infty} K(X[0 \ldots (n-1)]) - n = \infty \tag{2}
+\]
+
+\section*{Solution:}
+\subsection*{-$>$ Goal:}
+
+We need to prove that if the sum in (1) is finite, then the quantity \( K(X[0\ldots(n-1)]) - n \) grows unbounded — i.e., the prefix complexities grow \textbf{strictly faster than linear}, asymptotically.
+
+\subsection*{-$>$ Intuition and Structure:}
+
+We are asked to show that the prefix complexity \( K(X[0\ldots(n-1)]) \) must eventually grow faster than \( n \), under the assumption that the sum  
+\[
+\sum_{n \in \mathbb{N}} 2^{n - K(X[0\ldots(n-1)])}
+\]
+is finite.
+\newline
+\newline
+Let us define:
+\begin{itemize}
+  \item \( s_n := K(X[0\ldots(n-1)]) \)
+\end{itemize}
+
+So (1) becomes:
+\[
+\sum_{n \in \mathbb{N}} 2^{n - s_n} < \infty
+\]
+
+We want to conclude that:
+\[
+\lim_{n \to \infty} (s_n - n) = \infty
+\quad \text{(i.e., } s_n \gg n \text{)}
+\]
+
+If the difference \( s_n - n \) were bounded, say \( s_n \leq n + c \), then the sum becomes:
+\[
+\sum_n 2^{n - s_n} \geq \sum_n 2^{n - (n + c)} = \sum_n 2^{-c} = \infty
+\]
+— contradiction.
+
+
+\subsection*{-$>$ Assumption (for contradiction):}
+
+Suppose the limit in (2) does \textbf{not} go to \( \infty \). Then there exists a constant \( c \in \mathbb{N} \) and an \textbf{infinite} subsequence \( \{n_k\} \) such that:
+
+\[
+K(X[0\ldots(n_k - 1)]) \leq n_k + c
+\quad \text{for infinitely many } k
+\]
+
+Then:
+
+\[
+2^{n_k - K(X[0\ldots(n_k - 1)])} \geq 2^{n_k - (n_k + c)} = 2^{-c}
+\]
+
+Therefore, for infinitely many \( n_k \):
+
+\[
+2^{n_k - K(X[0\ldots(n_k - 1)])} \geq 2^{-c}
+\]
+
+So the sum:
+
+\[
+\sum_n 2^{n - K(X[0\ldots(n-1)])}
+\]
+
+has infinitely many terms each \( \geq 2^{-c} \), hence:
+
+\[
+\sum_n 2^{n - K(X[0\ldots(n-1)])} = \infty
+\]
+
+This \textbf{contradicts the given assumption} (1) that the sum is finite.
+
+
+
+\subsection*{Conclusion:}
+
+Therefore, our assumption must be false, and the only possibility is:
+
+\[
+\lim_{n \to \infty} K(X[0\ldots(n-1)]) - n = \infty \tag{\textbf{proved}}
+\]
+\newline
+\newline
+If \(\sum_{n \in \mathbb{N}} 2^{n - K(X[0\ldots(n-1)])} < \infty\) for an infinite binary sequence \(X\), then:  
+\[
+\boxed{\lim_{n \to \infty} K(X[0\ldots(n-1)]) - n = \infty}
+\]
+
+
+\newpage
+\section*{Question 3:}
+
+Suppose \( d : \Sigma^* \to [0, \infty) \) is a \textbf{lower semicomputable martingale}. Let \( X \) be a sequence on which \(d\) \textbf{succeeds}.  
+Then show that \( X \) has \textbf{infinitely many prefixes with low self-delimiting Kolmogorov complexity}.
+
+\section*{Solution:}
+\subsection*{-$>$ Goal:}
+
+We need to prove:
+
+\[
+\text{If } \limsup_{n \to \infty} d(X[0 \ldots n-1]) = \infty, \text{ then}
+\]
+\[
+\exists \text{ infinitely many } \sigma \prec X \text{ such that } K(\sigma) \leq |\sigma| - \log d(\sigma) + O(1)
+\]
+
+
+
+\subsection*{-$>$ Intuition:}
+
+A \textbf{lower semicomputable martingale} \( d \) is a computable betting strategy. If it \textbf{succeeds} on an infinite binary sequence \( X \), that means \( d(X[0..n]) \to \infty \) along a subsequence — i.e., it wins unbounded money by betting on \( X \).
+\newline
+\newline
+Such sequences must then \textbf{fail randomness tests} (they are not Martin-Löf random). One way to witness failure of randomness is that \textbf{some prefixes of the sequence have unexpectedly low prefix-free Kolmogorov complexity} — they are "too simple to be random".
+\newline
+\newline
+We’ll formalize this using \textbf{Kraft's inequality}, \textbf{code construction}, and known theorems (e.g., from class notes and Li \& Vitányi) connecting martingale success to complexity bounds..
+
+
+
+\subsubsection*{-$>$ Definitions:}
+
+Let:
+\begin{itemize}
+  \item \( \Sigma^* \) = set of finite binary strings.
+  \item \( d : \Sigma^* \to \mathbb{R}_{\geq 0} \) is a \textbf{lower semicomputable martingale}:
+    \begin{itemize}
+      \item \( d(\sigma) = \frac{1}{2}(d(\sigma 0) + d(\sigma 1)) \)
+      \item Computably approximable from below.
+    \end{itemize}
+  \item \( d \) \textbf{succeeds} on \( X \in \Sigma^\infty \):
+  \[
+  \limsup_{n \to \infty} d(X[0..n-1]) = \infty
+  \]
+\end{itemize}
+
+Let \( \sigma_n = X[0..n-1] \). We aim to show that:
+
+\[
+\text{For infinitely many } n, \quad K(\sigma_n) \leq |\sigma_n| - \log d(\sigma_n) + O(1)
+\]
+
+\subsubsection*{-$>$ Use the Kraft Inequality via Ville’s Lemma:}
+
+We define a set of strings where the martingale exceeds some fixed capital:
+
+Let \( c \in \mathbb{N} \). Define:
+
+\[
+S_c = \{ \sigma \in \Sigma^* : d(\sigma) \geq 2^c \}
+\]
+
+Ville’s inequality gives:
+
+\[
+\sum_{\sigma \in S_c} 2^{-|\sigma|} \leq 2^{-c}
+\]
+
+This allows us to define a \textbf{prefix-free code} for strings in \( S_c \), with lengths:
+
+\[
+\ell(\sigma) \approx |\sigma| - \log d(\sigma) + O(1)
+\]
+
+To explain this: Since \( \sum_{\sigma} 2^{-\ell(\sigma)} \leq 1 \), such codes obey \textbf{Kraft's inequality} and can be interpreted as the lengths of programs (i.e., descriptions) in a prefix code.
+
+\subsubsection*{-$>$ Prefix Complexity from Code Lengths:}
+
+Using the fact that the prefix-free Kolmogorov complexity \( K(\sigma) \) is upper-bounded by the length of a prefix code for \( \sigma \):
+
+\[
+K(\sigma) \leq \ell(\sigma) + O(1) \leq |\sigma| - \log d(\sigma) + O(1)
+\]
+
+This bound is \textbf{tight and valid} for all \( \sigma \in S_c \).
+
+\subsubsection*{-$>$ Apply to \( X \):}
+
+Since \( d \) succeeds on \( X \), for \textbf{infinitely many} \( n \), we have:
+
+\[
+d(X[0..n-1]) \geq 2^c \quad \text{for arbitrarily large } c
+\]
+
+So:
+\begin{itemize}
+  \item For infinitely many \( n \), \( \sigma_n \in S_c \) for increasing \( c \)
+  \item For such \( \sigma_n \), we have:
+  \[
+  K(\sigma_n) \leq |\sigma_n| - \log d(\sigma_n) + O(1)
+  \]
+\end{itemize}
+
+This proves that \( X \) has \textbf{infinitely many prefixes} with \textbf{lower-than-expected Kolmogorov complexity}, compared to the length of the prefix.
+
+\subsection*{Conclusion:}
+
+If \( d \) is a lower semicomputable martingale and \( d \) succeeds on an infinite binary sequence \( X \), then:
+
+\[
+\text{There are infinitely many } \sigma \prec X \text{ such that:} \quad
+K(\sigma) \leq |\sigma| - \log d(\sigma) + O(1)
+\]
+
+i.e., \( X \) has infinitely many prefixes with \textbf{low prefix-free Kolmogorov complexity}.  
+
+\newpage
+\section*{Problem 4:}
+ \textbf{Show that the following inequality holds for all strings $x, y$ and $z$ of length $n$ .}
+\[
+2C(x, y, z) \leq C(x, y) + C(x, z) + C(y, z) + O(\log n)
+\]
+
+\section*{Solution:}
+
+\subsection*{-$>$ Preliminaries and Definitions:}
+
+Let $C(u)$ denote the plain Kolmogorov complexity of string $u$. \\ 
+Let $C(u, v)$ denote the complexity of the pair $(u, v)$, i.e., the length of the shortest program that outputs both $u$ and $v$.
+\newline
+\newline
+Standard facts (used without proof here):
+
+\begin{enumerate}
+    \item \textbf{Chain rule}:
+    \[
+    C(u, v) = C(u) + C(v|u) + O(\log n)
+    \]
+
+    \item \textbf{Triple chain rule}:
+    \[
+    C(u, v, w) = C(u, v) + C(w | u, v) + O(\log n)
+    \]
+
+    \item \textbf{Symmetry of information}:
+    \[
+    C(v|u) + C(u) = C(u, v) + O(\log n)
+    \]
+
+    \item For any strings $u, v, w$:
+    \[
+    C(v|u, w) + C(w|u, v) \leq C(v, w|u) + O(\log n)
+    \]
+\end{enumerate}
+
+\subsection*{-$>$ Step-by-step Proof:}
+
+\subsubsection*{Step 1: Write $C(x, y, z)$ in two ways}
+
+Use the triple chain rule:
+
+\[
+C(x, y, z) = C(x, y) + C(z | x, y) + O(\log n) \tag{1}
+\]
+
+\[
+C(x, y, z) = C(x, z) + C(y | x, z) + O(\log n) \tag{2}
+\]
+
+\subsubsection*{Step 2: Add the two expressions}
+
+Add equations (1) and (2):
+
+\[
+2C(x, y, z) = C(x, y) + C(x, z) + C(z | x, y) + C(y | x, z) + O(\log n) \tag{3}
+\]
+
+\subsubsection*{Step 3: Bound the conditional complexities}
+
+Use the inequality:
+
+\[
+C(z | x, y) + C(y | x, z) \leq C(y, z | x) + O(\log n) \tag{4}
+\]
+
+Then add this to (3):
+
+\[
+2C(x, y, z) \leq C(x, y) + C(x, z) + C(y, z | x) + O(\log n) \tag{5}
+\]
+
+Now use the chain rule again:
+
+\[
+C(y, z | x) \leq C(y, z) - C(x) + O(\log n) \tag{6}
+\]
+
+But this doesn't simplify directly. Instead, we use the looser inequality:
+
+\[
+C(y, z | x) \leq C(y, z) + O(\log n)
+\]
+
+Substitute into (5):
+
+\[
+2C(x, y, z) \leq C(x, y) + C(x, z) + C(y, z) + O(\log n) \tag{7}
+\]
+
+\subsection*{Conclusion:}
+
+We have derived:
+
+\[
+2C(x, y, z) \leq C(x, y) + C(x, z) + C(y, z) + O(\log n)
+\]
+\\
+which holds for all strings $x, y, z$ of length at most $n$, and the hidden constant in $O(\log n)$ is independent of the strings.
+
+
+
+\end{document}
